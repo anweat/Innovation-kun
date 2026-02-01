@@ -34,22 +34,36 @@ function History() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const fetchHistory = async () => {
+    setLoading(true);
+    setError('');
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries < maxRetries) {
+      try {
+        const response = await fetch('/api/recommendations/history');
+        if (!response.ok) throw new Error('Failed to fetch history');
+        const data = await response.json();
+        setHistory(data);
+        setLoading(false);
+        return;
+      } catch (err: any) {
+        retries++;
+        if (retries >= maxRetries) {
+          setError(err.message);
+          setLoading(false);
+        } else {
+          // Exponential backoff: wait 500ms, 1s, 2s
+          await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, retries - 1)));
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     fetchHistory();
   }, []);
-
-  const fetchHistory = async () => {
-    try {
-      const response = await fetch('/api/recommendations/history');
-      if (!response.ok) throw new Error('Failed to fetch history');
-      const data = await response.json();
-      setHistory(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

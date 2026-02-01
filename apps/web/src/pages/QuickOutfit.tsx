@@ -58,21 +58,36 @@ function QuickOutfit() {
   };
 
   const submitFeedback = async (outfitId: string, rating: number, selected: boolean) => {
-    try {
-      await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          requestId: recommendations?.requestId,
-          outfitId,
-          rating,
-          selected,
-          comment: '',
-        }),
-      });
-      alert('Feedback submitted! Check the History page to see all your feedback.');
-    } catch (err) {
-      console.error('Failed to submit feedback:', err);
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries < maxRetries) {
+      try {
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            requestId: recommendations?.requestId,
+            outfitId,
+            rating,
+            selected,
+            comment: '',
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to submit feedback');
+        alert('Feedback submitted! Check the History page to see all your feedback.');
+        return;
+      } catch (err) {
+        retries++;
+        if (retries >= maxRetries) {
+          console.error('Failed to submit feedback after retries:', err);
+          alert('Failed to submit feedback. Please try again later.');
+        } else {
+          // Exponential backoff: wait 500ms, 1s, 2s
+          await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, retries - 1)));
+        }
+      }
     }
   };
 

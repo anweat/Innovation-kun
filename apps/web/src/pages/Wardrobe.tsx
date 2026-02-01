@@ -15,22 +15,36 @@ function Wardrobe() {
   });
   const [tagInput, setTagInput] = useState('');
 
+  const fetchItems = async () => {
+    setLoading(true);
+    setError('');
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries < maxRetries) {
+      try {
+        const response = await fetch('/api/wardrobe/items');
+        if (!response.ok) throw new Error('Failed to fetch items');
+        const data = await response.json();
+        setItems(data);
+        setLoading(false);
+        return;
+      } catch (err: any) {
+        retries++;
+        if (retries >= maxRetries) {
+          setError(err.message);
+          setLoading(false);
+        } else {
+          // Exponential backoff: wait 500ms, 1s, 2s
+          await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, retries - 1)));
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     fetchItems();
   }, []);
-
-  const fetchItems = async () => {
-    try {
-      const response = await fetch('/api/wardrobe/items');
-      if (!response.ok) throw new Error('Failed to fetch items');
-      const data = await response.json();
-      setItems(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
