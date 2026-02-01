@@ -7,6 +7,7 @@ export async function checkBackendHealth(): Promise<boolean> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
     
+    // Use /api/health instead of /health since proxy only forwards /api/*
     const response = await fetch('/api/health', {
       signal: controller.signal,
     });
