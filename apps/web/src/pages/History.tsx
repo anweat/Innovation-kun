@@ -51,7 +51,7 @@ function History() {
       } catch (err: any) {
         retries++;
         if (retries >= maxRetries) {
-          setError(err.message);
+          setError(`Failed to load history. ${err.message.includes('fetch') ? 'Backend API may not be running on port 3001.' : err.message}`);
           setLoading(false);
         } else {
           // Exponential backoff: wait 500ms, 1s, 2s

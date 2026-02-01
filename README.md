@@ -67,24 +67,44 @@ npm run prisma:seed
 
 ### Running the Application
 
-1. Start the API server:
+**Important**: The backend API must be running before the frontend can work properly.
+
+#### Option 1: Run Both Services Together (Recommended)
+
+From the root directory:
 ```bash
-cd apps/api
-npm run dev
+npm run dev:both
+```
+This will start both the API server (port 3001) and web app (port 3000) concurrently.
+
+#### Option 2: Run Services Separately
+
+1. Start the API server first:
+```bash
+npm run dev:api
+# Or: cd apps/api && npm run dev
 ```
 The API will run on http://localhost:3001
 
 2. In a new terminal, start the web app:
 ```bash
-cd apps/web
-npm run dev
+npm run dev:web
+# Or: cd apps/web && npm run dev
 ```
 The web app will run on http://localhost:3000
 
-Alternatively, from the root directory:
-```bash
-npm run dev
-```
+#### Troubleshooting
+
+**"Backend API is not responding" error:**
+- Ensure the API server is running on port 3001
+- Check that port 3001 is not blocked by firewall
+- Verify the database is set up (run `npm run prisma:push` in apps/api)
+- Check the API terminal for error messages
+
+**ECONNREFUSED errors:**
+- The backend is not running - start it with `npm run dev:api`
+- Port 3001 may be in use - check with `netstat -ano | findstr :3001` (Windows)
+- Database connection issues - ensure SQLite database is created
 
 ## API Endpoints
 

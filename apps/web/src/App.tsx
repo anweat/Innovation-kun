@@ -2,11 +2,13 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import QuickOutfit from './pages/QuickOutfit';
 import Wardrobe from './pages/Wardrobe';
 import History from './pages/History';
+import { BackendStatus } from './components/BackendStatus';
 
 function App() {
   return (
     <Router>
       <div className="app">
+        <BackendStatus />
         <nav className="navbar">
           <div className="nav-container">
             <h1 className="nav-title">Sidarstyle</h1>
